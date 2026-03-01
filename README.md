@@ -8,10 +8,8 @@ To solve this problem, I created a Python script that automatically downloads an
 
 1. Clone this repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/shahyarmalik/auto-add-music-thumbnails.git
 2. Open the script and update the MUSIC_FOLDER variable with the path to your local music directory.
-3. Run the script:
-   ```bash
-   python script_name.py
+3. Run the script named "music thumbnails.py"
 
 The script will automatically process all audio files in the folder and add the appropriate thumbnails.
