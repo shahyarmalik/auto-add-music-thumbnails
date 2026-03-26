@@ -1,5 +1,6 @@
 import os
 import re
+import stat
 import subprocess
 import requests
 from urllib.parse import quote
@@ -8,7 +9,7 @@ from mutagen.mp4 import MP4, MP4Cover
 from mutagen.id3 import ID3, APIC
 from mutagen import File as MutagenFile
 
-MUSIC_FOLDER = r"D:\music\no thumbnail"
+MUSIC_FOLDER = r"D:\New folder\music"
 
 SUPPORTED_EXTENSIONS = (".mp3", ".m4a", ".wav", ".wma", ".flac", ".ogg")
 
@@ -81,7 +82,6 @@ def search_youtube(query):
 
 
 def convert_wma_to_m4a(wma_path):
-    """Convert .wma to .m4a using ffmpeg, return new path or None on failure."""
     m4a_path = os.path.splitext(wma_path)[0] + ".m4a"
     try:
         result = subprocess.run(
@@ -101,6 +101,14 @@ def convert_wma_to_m4a(wma_path):
         return None
 
 
+def unlock_file(file_path):
+    """Remove read-only flag from file."""
+    try:
+        os.chmod(file_path, stat.S_IWRITE | stat.S_IREAD)
+    except Exception as e:
+        print(f"   -> Could not unlock file: {e}")
+
+
 def embed_artwork(file_path, image_url):
     try:
         response = requests.get(image_url, timeout=10)
@@ -112,10 +120,14 @@ def embed_artwork(file_path, image_url):
 
         # Convert WMA to M4A first
         if ext == ".wma":
+            unlock_file(file_path)
             file_path = convert_wma_to_m4a(file_path)
             if file_path is None:
                 return False
             ext = ".m4a"
+
+        # Unlock the file before writing
+        unlock_file(file_path)
 
         if ext in (".m4a", ".mp4", ".aac"):
             audio = MP4(file_path)
